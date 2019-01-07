@@ -1,0 +1,56 @@
+export PATH=$PATH:/home/$(whoami)/bin
+
+# https://stackoverflow.com/questions/2314643/how-can-i-get-find-to-ignore-svn-directories
+mygrp(){
+    find . \( -path \*/.svn -o -path \*/.git \) -prune \
+           -o \
+           \( -name .\#\* -o -name \*.o -o -name \*\~ -o -name \*.bin -o -name \*.lbin \
+                -o -name \*.so -o -name \*.a -o -name \*.ln \
+                -o -name \*.class -o -name \*.lib -o -name \*.mem \
+                -o -name \*.pyc -o -name \*.pyo -o -name GTAGS \
+           \) -prune \
+           -o \
+           -type f \
+           -exec grep --color=auto -i -nH -e $@ {} \;
+}
+
+parse_git_branch() {
+   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/' | sed -e 's/^\s*//g'
+}
+
+parse_svn_branch() {
+   svn info 2> /dev/null | grep "Relative URL" | sed -e "s/Relative URL:\s*//g"
+}
+
+parse_repo() {
+   git_branch="$(parse_git_branch)"
+   if [ ! -z "$git_branch" ]
+   then
+      echo -e "\nGIT: $git_branch"
+   fi
+
+   svn_branch="$(parse_svn_branch)"
+   if [ ! -z "$svn_branch" ]
+   then
+      echo -e "\nSVN: ($svn_branch)"
+   fi
+
+   echo ""
+}
+
+## COMMAND: strip_ws
+strip_ws() {
+   sed -i 's/[[:space:]]*$//' $@
+}
+
+## COMMAND: svnmods
+alias svnmods='svn status | grep "^\s*[MAD]"'
+
+## COMMAND: svnfindexernaldirs
+alias svnfindexernaldirs='find . -type d -a -not -path \*/.svn\* -print | while read f;do svn propget svn:externals "$f" >.svnproptmp 2>&1 && echo "$f" && cat -b .svnproptmp && rm .svnproptmp; done'
+
+## COMMAND: gap
+alias gap='printf "\n%.0s" {1..100}'
+
+## Custom Prompt
+PS1="\[\e[0;33m\]\$(parse_repo)\[\e[0m\]\n[\w]\n\u@\h\$ "
