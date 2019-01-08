@@ -32,7 +32,7 @@ while read fn; do fn2=${fn#"$svn_root"/}; [ -f "$fn2" ] && files="$files $fn2"; 
 
 ##
 ## Now diff, in one go, all the files listed in `files`
-svn diff -"r$first_commit:$last_commit" "$files" | tee patch.diff
+svn diff -"r$first_commit:$last_commit" $files | tee patch.diff
 echo -e "\n\n-- Diff available in patch.diff"
 
 ##
