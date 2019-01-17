@@ -1,15 +1,29 @@
 export PATH=$PATH:/home/$(whoami)/bin
 
 # https://stackoverflow.com/questions/2314643/how-can-i-get-find-to-ignore-svn-directories
-mygrp(){
+grp(){
     find . \( -path \*/.svn -o -path \*/.git \) -prune \
            -o \
            \( -name .\#\* -o -name \*.o -o -name \*\~ -o -name \*.bin -o -name \*.lbin \
-                -o -name \*.so -o -name \*.a -o -name \*.ln \
+                -o -name \*.so -o -name \*.a -o -name \*.ln -o -name \*.map \
                 -o -name \*.class -o -name \*.lib -o -name \*.mem \
                 -o -name \*.pyc -o -name \*.pyo -o -name GTAGS \
            \) -prune \
            -o \
+           -type f \
+           -exec grep --color=auto -i -nH -e $@ {} \;
+}
+
+cgrp(){
+    find . \( -path \*/.svn -o -path \*/.git \) -prune \
+           -o \
+           \( -name .\#\* -o -name \*.o -o -name \*\~ -o -name \*.bin -o -name \*.lbin \
+                -o -name \*.so -o -name \*.a -o -name \*.ln -name -o -name \*.map \
+                -o -name \*.class -o -name \*.lib -o -name \*.mem \
+                -o -name \*.pyc -o -name \*.pyo -o -name GTAGS \
+           \) -prune \
+           -o \
+           \( -name \*.cpp -o -name \*.c -o -name \*.h -o -name \*.hpp \) \
            -type f \
            -exec grep --color=auto -i -nH -e $@ {} \;
 }
