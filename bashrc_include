@@ -11,7 +11,7 @@ grp(){
            \) -prune \
            -o \
            -type f \
-           -exec grep --color=auto -i -nH -e $@ {} \;
+           -exec grep --color=auto -i -nH -e "$@" {} \;
 }
 
 cgrp(){
@@ -25,7 +25,7 @@ cgrp(){
            -o \
            \( -name \*.cpp -o -name \*.c -o -name \*.h -o -name \*.hpp \) \
            -type f \
-           -exec grep --color=auto -i -nH -e $@ {} \;
+           -exec grep --color=auto -i -nH -e "$@" {} \;
 }
 
 parse_git_branch() {
@@ -54,7 +54,7 @@ parse_repo() {
 
 ## COMMAND: strip_ws
 strip_ws() {
-   sed -i 's/[[:space:]]*$//' $@
+   sed -i 's/[[:space:]]*$//' "$@"
 }
 
 ## COMMAND: svnmods
