@@ -2,11 +2,12 @@
 
 i=1
 branches=()
-while read a; 
-do 
-	b=$(echo "$a" | sed -e 's/^\*\s*//g'); 
-	branches+=($b)
-	echo "$i) $b"; ((i=i+1)); 
+while read branch_name;
+do
+	branch_name_cleaned=$(sed -e 's/^\*\s*//g' <<< "$branch_name")
+	branches+=($branch_name_cleaned)
+	echo "$i) $branch_name_cleaned"
+	((i=i+1))
 done <<< $(git branch)
 
 ip=0
