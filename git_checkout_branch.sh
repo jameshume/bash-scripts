@@ -1,4 +1,7 @@
 #!/bin/bash
+COLOR_LIGHT_BLUE='\e[1;34m'
+COLOR_LIGHT_CYAN='\e[1;36m'
+COLOR_NONE='\e[0m'
 
 i=1
 branches=()
@@ -6,9 +9,16 @@ while read -r branch_name;
 do
 	branch_name_cleaned=$(sed -e 's/^\*\s*//g' <<< "$branch_name")
 	branches+=("$branch_name_cleaned")
+	if [ $(( $i % 2 )) -eq 0 ]; then
+		echo -ne $COLOR_LIGHT_BLUE
+	else
+		echo -ne $COLOR_LIGHT_CYAN
+	fi
 	echo "$i) $branch_name_cleaned"
 	((i=i+1))
 done <<< "$(git branch)"
+
+echo -ne $COLOR_NONE
 
 ip=0
 while [ $ip -lt 1 ] || [ $ip -gt ${#branches[*]} ]
