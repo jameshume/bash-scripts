@@ -1,0 +1,38 @@
+##
+## Viewing a debug buffer in atmel studio (visual studio behind the scenes) in the memory window
+## does pretty print a buffer when the debug buffer is something like
+##    char debug_buffer[1000][100]
+## So copy out the contents of memory watch window that looks like this:
+##
+##
+## 0x20001169  xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx  String in my buffer..............................
+## 0x20001169  xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx  .................................................
+## 0x2000119A  xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx  ..Another string in buffer.......................
+## 0x200011CB  xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx  .................................................
+## 0x200011FC  xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx  ....More strings in this buffer..................
+##
+## And parse it so we just get the readable strings with lines joined
+## Crappy implementation but it does the job
+##
+import re
+
+prog = re.compile("[^\.]")
+
+def stripdots(txt):
+    return re.sub('\.', '', txt)
+
+with open("memory_dump.txt") as fh:
+    contents = [line[160:] for line in fh.readlines() if prog.match(line) is not None]
+
+newcontents = [contents[0]]
+merged = False
+for idx in range(1, len(contents)):
+    if contents[idx][0] != ".":
+        newcontents[-1] = newcontents[-1].strip() + contents[idx].strip()
+    else:
+        newcontents.append(contents[idx].strip())
+
+for l in newcontents:
+    l = stripdots(l).strip()
+    if len(l):
+        print(l)
