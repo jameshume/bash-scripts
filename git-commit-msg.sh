@@ -9,10 +9,13 @@ parse_git_branch() {
    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/' | sed -e 's/^\s*//g'
 }
 
+echo "[INFO] Running commit script with \$1 = \"$1\""
+
 # Parse the git branch name and fund the TICKET-xxxxxx specifier if it exists
 BRANCH=$(parse_git_branch)
 BRANCH_TICKET_NUM=$(sed -e 's/.*\(\(ticket\|TICKET\)-[0-9]\{6\}\).*/\1/g' <<< "#$BRANCH")
 [ "${BRANCH_TICKET_NUM:0:1}" = "#" ] && BRANCH_TICKET_NUM=""
+echo "[INFO] BRANCH_UPM_NUM = \"$BRANCH_UPM_NUM\""
 
 # Make sure the message starts with TICKET-dddddd where d is a number 0-9
 grep -i "^TICKET-[0-9]\{6\}" "$1" > /dev/null 2>&1 || {
@@ -20,7 +23,9 @@ grep -i "^TICKET-[0-9]\{6\}" "$1" > /dev/null 2>&1 || {
         exit 1
 }
 
-MSG_TICKET_NUM=$(sed 's/^\(ticket\|TICKET\)\(-[0-9]\{6\}\).*/\1\2/g' "$1")
+# Have to grep here as when merging the commit message file is multi line
+MSG_TICKET_NUM=$(sed 's/^\(ticket\|TICKET\)\(-[0-9]\{4\}\).*/\1\2/g' <<< $(grep -i "^TICKET" "$1"))
+echo "[INFO] MSG_UPM_NUM = \"$MSG_UPM_NUM\""
 
 # If the branch name exists the TICKET of the branch name must be verfied against the msg
 if [ -n "$BRANCH_TICKET_NUM" ]; then
